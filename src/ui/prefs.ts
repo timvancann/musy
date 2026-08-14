@@ -1,8 +1,10 @@
 // Musy stores only small preferences (no history), so localStorage suffices.
 import type { KindToggles } from '../core/theory/chords';
+import { MODES, type Mode } from '../core/theory/degrees';
 
 const KEYS_KEY = 'musy.keys';
 const KINDS_KEY = 'musy.kinds';
+const MODES_KEY = 'musy.modes';
 
 export function getSelectedKeys(): string[] {
   try {
@@ -34,4 +36,22 @@ export function getKinds(): KindToggles {
 
 export function setKinds(kinds: KindToggles): void {
   localStorage.setItem(KINDS_KEY, JSON.stringify(kinds));
+}
+
+export function getSelectedModes(): Mode[] {
+  try {
+    const raw = localStorage.getItem(MODES_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : null;
+    if (Array.isArray(parsed)) {
+      const valid = parsed.filter((m): m is Mode => (MODES as readonly string[]).includes(m as string));
+      if (valid.length > 0) return valid;
+    }
+  } catch {
+    // fall through to default
+  }
+  return ['Ionian', 'Aeolian'];
+}
+
+export function setSelectedModes(modes: Mode[]): void {
+  localStorage.setItem(MODES_KEY, JSON.stringify(modes));
 }

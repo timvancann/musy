@@ -1,9 +1,16 @@
 <script lang="ts">
   import { KEYS, buildPool, type KindToggles } from '../../core/theory/chords';
-  import { getKinds, getSelectedKeys, setKinds, setSelectedKeys } from '../prefs';
+  import { MODES, type Mode } from '../../core/theory/degrees';
+  import { getKinds, getSelectedKeys, getSelectedModes, setKinds, setSelectedKeys, setSelectedModes } from '../prefs';
 
   let selected = $state<string[]>(getSelectedKeys());
   let kinds = $state<KindToggles>(getKinds());
+  let modes = $state<Mode[]>(getSelectedModes());
+
+  function toggleMode(m: Mode) {
+    modes = modes.includes(m) ? modes.filter(x => x !== m) : [...modes, m];
+    setSelectedModes([...modes]);
+  }
 
   function toggleKey(k: string) {
     selected = selected.includes(k) ? selected.filter(x => x !== k) : [...selected, k];
@@ -40,6 +47,13 @@
       <span>Sus chords (sus2, sus4)</span><span class="dim">{kinds.sus ? 'on' : 'off'}</span>
     </button>
   </section>
+
+  <h2 class="section-title">Modes <span class="dim small">for the degrees drill</span></h2>
+  <div class="chips modes">
+    {#each MODES as m}
+      <button class="chip mode" class:on={modes.includes(m)} onclick={() => toggleMode(m)}>{m}</button>
+    {/each}
+  </div>
 </div>
 
 <style>
@@ -52,6 +66,9 @@
     color: var(--text); font: 600 16px var(--font-mono); min-height: 48px; cursor: pointer;
   }
   .chip.on { border-color: var(--accent); color: var(--accent); }
+  .chips.modes { grid-template-columns: repeat(2, 1fr); }
+  .chip.mode { font: 500 14px var(--font-ui); }
+  .section-title .small { font-size: 12px; font-weight: 400; }
   section { display: grid; gap: 1px; background: var(--line); border-radius: var(--radius); overflow: hidden; }
   .row {
     display: flex; justify-content: space-between; align-items: center;

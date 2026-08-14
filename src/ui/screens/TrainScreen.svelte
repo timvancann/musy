@@ -1,44 +1,58 @@
 <script lang="ts">
   import { buildPool, type ChordItem } from '../../core/theory/chords';
+  import { buildDegreePool, type DegreeItem } from '../../core/theory/degrees';
   import { mulberry32 } from '../../core/rng';
-  import { getKinds, getSelectedKeys } from '../prefs';
+  import { getKinds, getSelectedKeys, getSelectedModes } from '../prefs';
   import { navigate } from '../router.svelte';
   import CircleArt from '../CircleArt.svelte';
 
   const rand = mulberry32(Date.now() >>> 0);
   const REVEAL_DEAD_MS = 300;
 
-  let view = $state<'select' | 'drill'>('select');
-  let pool = $state<ChordItem[]>([]);
-  let item = $state<ChordItem | null>(null);
+  type Direction = 'toDegree' | 'toChord';
+
+  let view = $state<'select' | 'chords' | 'degrees'>('select');
+  let chordPool = $state<ChordItem[]>([]);
+  let degreePool = $state<DegreeItem[]>([]);
+  let chord = $state<ChordItem | null>(null);
+  let degree = $state<DegreeItem | null>(null);
+  let direction = $state<Direction>('toDegree');
   let stage = $state<'show' | 'reveal'>('show');
   let shownAt = $state(0);
   let elapsedMs = $state(0);
   let revealAt = $state(0);
   let count = $state(0);
-  let lastSymbol: string | undefined;
+  let lastId: string | undefined;
 
   $effect(() => {
-    pool = buildPool(getSelectedKeys(), getKinds());
+    chordPool = buildPool(getSelectedKeys(), getKinds());
+    degreePool = buildDegreePool(getSelectedKeys(), getSelectedModes());
   });
 
-  function pick(): ChordItem {
+  function pickFrom<T>(pool: T[], idOf: (x: T) => string): T {
     let candidates = pool;
-    if (pool.length >= 3 && lastSymbol) candidates = pool.filter(c => c.symbol !== lastSymbol);
-    return candidates[Math.floor(rand() * candidates.length)];
+    if (pool.length >= 3 && lastId) candidates = pool.filter(x => idOf(x) !== lastId);
+    const chosen = candidates[Math.floor(rand() * candidates.length)];
+    lastId = idOf(chosen);
+    return chosen;
   }
 
   function next() {
-    item = pick();
-    lastSymbol = item.symbol;
+    if (view === 'chords') {
+      chord = pickFrom(chordPool, c => c.symbol);
+    } else {
+      degree = pickFrom(degreePool, d => `${d.tonic}${d.mode}${d.degree}`);
+      direction = rand() < 0.5 ? 'toDegree' : 'toChord';
+    }
     stage = 'show';
     shownAt = Date.now();
     elapsedMs = 0;
   }
 
-  function startDrill() {
-    view = 'drill';
+  function startDrill(which: 'chords' | 'degrees') {
+    view = which;
     count = 0;
+    lastId = undefined;
     next();
   }
 
@@ -60,7 +74,6 @@
   }
 
   function onTap(t: number) {
-    if (!item) return;
     if (stage === 'show') {
       elapsedMs = t - shownAt;
       stage = 'reveal';
@@ -74,7 +87,7 @@
 </script>
 
 <div class="screen train">
-  {#if pool.length < 3}
+  {#if chordPool.length < 3}
     <div class="empty">
       <p>Select at least one key and chord type.</p>
       <button class="primary" onclick={() => navigate('/chords')}>Choose chords</button>
@@ -82,28 +95,55 @@
   {:else if view === 'select'}
     <div class="mode-select">
       <h1>Train</h1>
-      <button class="mode-card" onclick={startDrill}>
-        <CircleArt size={110} />
+      <button class="mode-card" onclick={() => startDrill('chords')}>
+        <CircleArt size={96} />
         <span class="mode-name">Chords → Notes</span>
         <span class="dim">see a chord symbol, recall its notes</span>
       </button>
+      <button class="mode-card" onclick={() => startDrill('degrees')}>
+        <span class="numeral-art" aria-hidden="true">ii V I</span>
+        <span class="mode-name">Degrees</span>
+        <span class="dim">chord ↔ degree within a mode, both directions</span>
+      </button>
     </div>
-  {:else if item}
+  {:else}
     <header>
       <button class="back" onclick={() => (view = 'select')}>← modes</button>
       <span class="dim">{count} recalled</span>
     </header>
     <button class="zone" onpointerdown={onDown} onpointerup={onUp} onpointercancel={() => (down = null)}>
-      {#if stage === 'show'}
-        <p class="symbol">{item.symbol}</p>
-        <p class="hint">tap when you have the notes</p>
-      {:else}
-        <div class="reveal">
-          <p class="symbol small">{item.symbol}</p>
-          <p class="notes">{item.notes.join(' ')}</p>
-          <p class="time">{(elapsedMs / 1000).toFixed(2)}s</p>
-          <p class="hint">tap for the next chord</p>
-        </div>
+      {#if view === 'chords' && chord}
+        {#if stage === 'show'}
+          <p class="symbol">{chord.symbol}</p>
+          <p class="hint">tap when you have the notes</p>
+        {:else}
+          <div class="reveal">
+            <p class="symbol small">{chord.symbol}</p>
+            <p class="big accent">{chord.notes.join(' ')}</p>
+            <p class="time">{(elapsedMs / 1000).toFixed(2)}s</p>
+            <p class="hint">tap for the next chord</p>
+          </div>
+        {/if}
+      {:else if view === 'degrees' && degree}
+        {#if stage === 'show'}
+          {#if direction === 'toDegree'}
+            <p class="symbol">{degree.symbol}</p>
+            <p class="context">in {degree.tonic} {degree.mode}</p>
+            <p class="hint">which degree?</p>
+          {:else}
+            <p class="context">{degree.tonic} {degree.mode}</p>
+            <p class="symbol">{degree.numeral}</p>
+            <p class="hint">which chord?</p>
+          {/if}
+        {:else}
+          <div class="reveal">
+            <p class="context">{degree.tonic} {degree.mode}</p>
+            <p class="big accent">{direction === 'toDegree' ? degree.numeral : degree.symbol}</p>
+            <p class="secondary">{direction === 'toDegree' ? degree.symbol : degree.numeral} — {degree.notes.join(' ')}</p>
+            <p class="time">{(elapsedMs / 1000).toFixed(2)}s</p>
+            <p class="hint">tap for the next one</p>
+          </div>
+        {/if}
       {/if}
     </button>
     <p class="footnote dim">nothing is recorded — pure recall practice</p>
@@ -129,6 +169,7 @@
   .mode-card:active { border-color: var(--accent); }
   .mode-name { font: 700 18px var(--font-ui); }
   .mode-card .dim { font-size: 12px; max-width: 24ch; }
+  .numeral-art { font: 700 34px var(--font-mono); color: var(--accent); letter-spacing: 0.06em; }
   .zone {
     flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 16px; background: none; border: 0; color: var(--text); cursor: pointer;
@@ -136,9 +177,12 @@
   }
   .symbol { font: 700 56px var(--font-mono); }
   .symbol.small { font-size: 28px; color: var(--dim); }
+  .context { font: 500 20px var(--font-ui); color: var(--dim); }
   .hint { color: var(--dim); font-size: 13px; }
   .reveal { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-  .notes { font: 700 40px var(--font-mono); color: var(--accent); letter-spacing: 0.04em; }
+  .big { font: 700 44px var(--font-mono); letter-spacing: 0.04em; }
+  .accent { color: var(--accent); }
+  .secondary { font: 600 18px var(--font-mono); color: var(--text); }
   .time { font: 600 28px var(--font-mono); font-variant-numeric: tabular-nums; }
   .footnote { font-size: 12px; text-align: center; padding-bottom: 8px; }
   .primary {
