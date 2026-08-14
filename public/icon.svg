@@ -1,12 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <rect width="1024" height="1024" fill="#101114"/>
-  <rect x="96" y="249" width="832" height="14" rx="7" fill="#2d3038"/>
-  <rect x="96" y="377" width="832" height="14" rx="7" fill="#2d3038"/>
-  <rect x="96" y="505" width="832" height="14" rx="7" fill="#2d3038"/>
-  <rect x="96" y="633" width="832" height="14" rx="7" fill="#2d3038"/>
-  <rect x="96" y="761" width="832" height="14" rx="7" fill="#2d3038"/>
-  <rect x="525" y="114" width="22" height="526" rx="11" fill="#ffd500"/>
-  <ellipse cx="450" cy="384" rx="84" ry="54" transform="rotate(-16 450 384)" fill="#ffd500"/>
-  <ellipse cx="450" cy="512" rx="84" ry="54" transform="rotate(-16 450 512)" fill="#ffd500"/>
-  <ellipse cx="450" cy="640" rx="84" ry="54" transform="rotate(-16 450 640)" fill="#ffd500"/>
+  <g font-family="ui-monospace, Menlo, 'JetBrains Mono', monospace" font-weight="700" text-anchor="middle">
+    <text x="512" y="360" font-size="230" fill="#7c818d">ii</text>
+    <text x="512" y="660" font-size="330" fill="#ffd500">V7</text>
+    <text x="512" y="930" font-size="230" fill="#e8e6df">I</text>
+  </g>
 </svg>
