@@ -5,6 +5,7 @@
   import { getKinds, getSelectedKeys, getSelectedModes } from '../prefs';
   import { navigate } from '../router.svelte';
   import CircleArt from '../CircleArt.svelte';
+  import { drillKeys } from '../keys';
 
   const rand = mulberry32(Date.now() >>> 0);
   const REVEAL_DEAD_MS = 300;
@@ -28,6 +29,14 @@
     chordPool = buildPool(getSelectedKeys(), getKinds());
     degreePool = buildDegreePool(getSelectedKeys(), getSelectedModes());
   });
+
+  $effect(() =>
+    drillKeys({
+      onSpace: () => onTap(Date.now()),
+      onEscape: () => (view = 'select'),
+      enabled: () => view !== 'select',
+    }),
+  );
 
   function pickFrom<T>(pool: T[], idOf: (x: T) => string): T {
     let candidates = pool;
