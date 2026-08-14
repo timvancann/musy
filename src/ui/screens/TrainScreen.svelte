@@ -101,7 +101,6 @@
         <div class="reveal">
           <p class="symbol small">{item.symbol}</p>
           <p class="notes">{item.notes.join(' ')}</p>
-          <p class="dim">from {item.key} major</p>
           <p class="time">{(elapsedMs / 1000).toFixed(2)}s</p>
           <p class="hint">tap for the next chord</p>
         </div>
