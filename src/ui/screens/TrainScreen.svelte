@@ -1,8 +1,9 @@
 <script lang="ts">
   import { buildPool, type ChordItem } from '../../core/theory/chords';
   import { buildDegreePool, type DegreeItem } from '../../core/theory/degrees';
+  import { buildTriadPool, type TriadItem } from '../../core/theory/triads';
   import { mulberry32 } from '../../core/rng';
-  import { getKinds, getSelectedKeys, getSelectedModes } from '../prefs';
+  import { getKinds, getSelectedKeys, getSelectedModes, getTriadToggles } from '../prefs';
   import { navigate } from '../router.svelte';
   import CircleArt from '../CircleArt.svelte';
   import { drillKeys } from '../keys';
@@ -12,11 +13,13 @@
 
   type Direction = 'toDegree' | 'toChord';
 
-  let view = $state<'select' | 'chords' | 'degrees'>('select');
+  let view = $state<'select' | 'chords' | 'degrees' | 'triads'>('select');
   let chordPool = $state<ChordItem[]>([]);
   let degreePool = $state<DegreeItem[]>([]);
+  let triadPool = $state<TriadItem[]>([]);
   let chord = $state<ChordItem | null>(null);
   let degree = $state<DegreeItem | null>(null);
+  let triad = $state<TriadItem | null>(null);
   let direction = $state<Direction>('toDegree');
   let stage = $state<'show' | 'reveal'>('show');
   let shownAt = $state(0);
@@ -28,6 +31,7 @@
   $effect(() => {
     chordPool = buildPool(getSelectedKeys(), getKinds());
     degreePool = buildDegreePool(getSelectedKeys(), getSelectedModes());
+    triadPool = buildTriadPool(getSelectedKeys(), getTriadToggles());
   });
 
   $effect(() =>
@@ -49,16 +53,18 @@
   function next() {
     if (view === 'chords') {
       chord = pickFrom(chordPool, c => c.symbol);
-    } else {
+    } else if (view === 'degrees') {
       degree = pickFrom(degreePool, d => `${d.tonic}${d.mode}${d.degree}`);
       direction = rand() < 0.5 ? 'toDegree' : 'toChord';
+    } else {
+      triad = pickFrom(triadPool, t => `${t.label}|${t.inversion}|${t.stringSet}`);
     }
     stage = 'show';
     shownAt = Date.now();
     elapsedMs = 0;
   }
 
-  function startDrill(which: 'chords' | 'degrees') {
+  function startDrill(which: 'chords' | 'degrees' | 'triads') {
     view = which;
     count = 0;
     lastId = undefined;
@@ -83,6 +89,12 @@
   }
 
   function onTap(t: number) {
+    // The triad trainer is untimed: any tap simply deals the next prompt.
+    if (view === 'triads') {
+      count += 1;
+      next();
+      return;
+    }
     if (stage === 'show') {
       elapsedMs = t - shownAt;
       stage = 'reveal';
@@ -114,6 +126,11 @@
         <span class="mode-name">Degrees</span>
         <span class="dim">chord ↔ degree within a mode, both directions</span>
       </button>
+      <button class="mode-card" onclick={() => startDrill('triads')}>
+        <span class="numeral-art" aria-hidden="true">5-4-3</span>
+        <span class="mode-name">Triads on the neck</span>
+        <span class="dim">find the voicing on a string set, untimed</span>
+      </button>
     </div>
   {:else}
     <header>
@@ -133,6 +150,11 @@
             <p class="hint">tap for the next chord</p>
           </div>
         {/if}
+      {:else if view === 'triads' && triad}
+        <p class="symbol">{triad.label}</p>
+        <p class="context">{triad.inversionLabel}</p>
+        <p class="stringset">strings {triad.stringSet}</p>
+        <p class="hint">find it on the neck, then tap for the next</p>
       {:else if view === 'degrees' && degree}
         {#if stage === 'show'}
           {#if direction === 'toDegree'}
@@ -171,7 +193,7 @@
   .mode-select h1 { font-size: 20px; justify-self: start; }
   .mode-card {
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-    aspect-ratio: 1; width: min(100%, 38dvh);
+    aspect-ratio: 1; width: min(100%, 27dvh);
     background: var(--panel); border: 2px solid var(--line); border-radius: 14px;
     color: var(--text); text-align: center; padding: 18px; cursor: pointer;
   }
@@ -187,6 +209,7 @@
   .symbol { font: 700 56px var(--font-mono); }
   .symbol.small { font-size: 28px; color: var(--dim); }
   .context { font: 500 20px var(--font-ui); color: var(--dim); }
+  .stringset { font: 700 26px var(--font-mono); color: var(--accent); }
   .hint { color: var(--dim); font-size: 13px; }
   .reveal { display: flex; flex-direction: column; align-items: center; gap: 10px; }
   .big { font: 700 44px var(--font-mono); letter-spacing: 0.04em; }
