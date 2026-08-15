@@ -117,7 +117,7 @@
     <div class="mode-select">
       <h1>Train</h1>
       <button class="mode-card" onclick={() => startDrill('chords')}>
-        <CircleArt size={96} />
+        <CircleArt size={72} />
         <span class="mode-name">Chords → Notes</span>
         <span class="dim">see a chord symbol, recall its notes</span>
       </button>
@@ -189,18 +189,21 @@
     background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
     color: var(--text); font: 600 15px var(--font-ui); padding: 0 18px; min-height: 44px; cursor: pointer;
   }
-  .mode-select { display: grid; gap: 16px; align-content: center; justify-items: center; flex: 1; }
-  .mode-select h1 { font-size: 20px; justify-self: start; }
+  .mode-select {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    align-content: center; flex: 1;
+  }
+  .mode-select h1 { font-size: 20px; grid-column: 1 / -1; }
   .mode-card {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-    aspect-ratio: 1; width: min(100%, 27dvh);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    aspect-ratio: 1; width: 100%;
     background: var(--panel); border: 2px solid var(--line); border-radius: 14px;
-    color: var(--text); text-align: center; padding: 18px; cursor: pointer;
+    color: var(--text); text-align: center; padding: 12px; cursor: pointer;
   }
   .mode-card:active { border-color: var(--accent); }
-  .mode-name { font: 700 18px var(--font-ui); }
-  .mode-card .dim { font-size: 12px; max-width: 24ch; }
-  .numeral-art { font: 700 34px var(--font-mono); color: var(--accent); letter-spacing: 0.06em; }
+  .mode-name { font: 700 15px var(--font-ui); }
+  .mode-card .dim { font-size: 11px; max-width: 20ch; }
+  .numeral-art { font: 700 26px var(--font-mono); color: var(--accent); letter-spacing: 0.06em; }
   .zone {
     flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 16px; background: none; border: 0; color: var(--text); cursor: pointer;

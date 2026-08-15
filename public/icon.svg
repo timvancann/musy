@@ -1,8 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <rect width="1024" height="1024" fill="#101114"/>
-  <g font-family="ui-monospace, Menlo, 'JetBrains Mono', monospace" font-weight="700" text-anchor="middle">
-    <text x="512" y="360" font-size="230" fill="#7c818d">ii</text>
-    <text x="512" y="660" font-size="330" fill="#ffd500">V7</text>
-    <text x="512" y="930" font-size="230" fill="#e8e6df">I</text>
-  </g>
+  <rect x="169" y="252" width="14" height="520" rx="7" fill="#3a4049"/>
+  <rect x="393" y="252" width="14" height="520" rx="7" fill="#3a4049"/>
+  <rect x="617" y="252" width="14" height="520" rx="7" fill="#3a4049"/>
+  <rect x="841" y="252" width="14" height="520" rx="7" fill="#3a4049"/>
+  <rect x="140" y="303" width="744" height="18" rx="9" fill="#565d6b"/>
+  <rect x="140" y="503" width="744" height="18" rx="9" fill="#565d6b"/>
+  <rect x="140" y="703" width="744" height="18" rx="9" fill="#565d6b"/>
+  <circle cx="512.0" cy="312" r="86" fill="#ffd500"/>
+  <text x="512.0" y="346" font-family="ui-monospace, Menlo, monospace" font-weight="700" font-size="104" text-anchor="middle" fill="#171102">2</text>
+  <circle cx="288.0" cy="512" r="86" fill="#ffd500"/>
+  <text x="288.0" y="546" font-family="ui-monospace, Menlo, monospace" font-weight="700" font-size="104" text-anchor="middle" fill="#171102">1</text>
+  <circle cx="736.0" cy="712" r="86" fill="#ffd500"/>
+  <text x="736.0" y="746" font-family="ui-monospace, Menlo, monospace" font-weight="700" font-size="104" text-anchor="middle" fill="#171102">3</text>
 </svg>
