@@ -57,7 +57,7 @@
       degree = pickFrom(degreePool, d => `${d.tonic}${d.mode}${d.degree}`);
       direction = rand() < 0.5 ? 'toDegree' : 'toChord';
     } else {
-      triad = pickFrom(triadPool, t => `${t.label}|${t.inversion}|${t.stringSet}`);
+      triad = pickFrom(triadPool, t => `${t.symbol}|${t.inversion}|${t.stringSet}`);
     }
     stage = 'show';
     shownAt = Date.now();
@@ -151,8 +151,8 @@
           </div>
         {/if}
       {:else if view === 'triads' && triad}
-        <p class="symbol">{triad.label}</p>
-        <p class="context">{triad.inversionLabel}</p>
+        <p class="symbol">{triad.symbol}{triad.inversion > 0 ? `/${triad.bass}` : ''}</p>
+        <p class="context">{triad.shell ? `shell voicing, ${triad.inversionLabel}` : triad.inversionLabel}</p>
         <p class="stringset">strings {triad.stringSet}</p>
         <p class="hint">find it on the neck, then tap for the next</p>
       {:else if view === 'degrees' && degree}

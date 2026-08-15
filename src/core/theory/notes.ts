@@ -40,3 +40,8 @@ export function raiseSemitone(note: string): string {
   const { letter, alter } = parse(note);
   return render(letter, alter + 1);
 }
+
+export function lowerSemitone(note: string): string {
+  const { letter, alter } = parse(note);
+  return render(letter, alter - 1);
+}
