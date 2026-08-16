@@ -80,3 +80,13 @@ export function getTriadToggles(): TriadToggles {
 export function setTriadToggles(t: TriadToggles): void {
   localStorage.setItem(TRIADS_KEY, JSON.stringify(t));
 }
+
+const JAZZ_KEY = 'musy.jazzSymbols';
+
+export function getJazzSymbols(): boolean {
+  return localStorage.getItem(JAZZ_KEY) === 'true';
+}
+
+export function setJazzSymbols(on: boolean): void {
+  localStorage.setItem(JAZZ_KEY, String(on));
+}

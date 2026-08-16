@@ -3,7 +3,8 @@
   import { buildDegreePool, type DegreeItem } from '../../core/theory/degrees';
   import { buildTriadPool, type TriadItem } from '../../core/theory/triads';
   import { mulberry32 } from '../../core/rng';
-  import { getKinds, getSelectedKeys, getSelectedModes, getTriadToggles } from '../prefs';
+  import { getJazzSymbols, getKinds, getSelectedKeys, getSelectedModes, getTriadToggles } from '../prefs';
+  import { chordSymbol } from '../notation';
   import { navigate } from '../router.svelte';
   import CircleArt from '../CircleArt.svelte';
   import { drillKeys } from '../keys';
@@ -28,11 +29,16 @@
   let count = $state(0);
   let lastId: string | undefined;
 
+  let jazz = $state(false);
+
   $effect(() => {
     chordPool = buildPool(getSelectedKeys(), getKinds());
     degreePool = buildDegreePool(getSelectedKeys(), getSelectedModes());
     triadPool = buildTriadPool(getSelectedKeys(), getTriadToggles());
+    jazz = getJazzSymbols();
   });
+
+  const sym = (s: string) => chordSymbol(s, jazz);
 
   $effect(() =>
     drillKeys({
@@ -140,25 +146,25 @@
     <button class="zone" onpointerdown={onDown} onpointerup={onUp} onpointercancel={() => (down = null)}>
       {#if view === 'chords' && chord}
         {#if stage === 'show'}
-          <p class="symbol">{chord.symbol}</p>
+          <p class="symbol">{sym(chord.symbol)}</p>
           <p class="hint">tap when you have the notes</p>
         {:else}
           <div class="reveal">
-            <p class="symbol small">{chord.symbol}</p>
+            <p class="symbol small">{sym(chord.symbol)}</p>
             <p class="big accent">{chord.notes.join(' ')}</p>
             <p class="time">{(elapsedMs / 1000).toFixed(2)}s</p>
             <p class="hint">tap for the next chord</p>
           </div>
         {/if}
       {:else if view === 'triads' && triad}
-        <p class="symbol">{triad.symbol}{triad.inversion > 0 ? `/${triad.bass}` : ''}</p>
+        <p class="symbol">{sym(triad.symbol)}{triad.inversion > 0 ? `/${triad.bass}` : ''}</p>
         <p class="context">{triad.shell ? `shell voicing, ${triad.inversionLabel}` : triad.inversionLabel}</p>
         <p class="stringset">strings {triad.stringSet}</p>
         <p class="hint">find it on the neck, then tap for the next</p>
       {:else if view === 'degrees' && degree}
         {#if stage === 'show'}
           {#if direction === 'toDegree'}
-            <p class="symbol">{degree.symbol}</p>
+            <p class="symbol">{sym(degree.symbol)}</p>
             <p class="context">in {degree.tonic} {degree.mode}</p>
             <p class="hint">which degree?</p>
           {:else}
@@ -169,8 +175,8 @@
         {:else}
           <div class="reveal">
             <p class="context">{degree.tonic} {degree.mode}</p>
-            <p class="big accent">{direction === 'toDegree' ? degree.numeral : degree.symbol}</p>
-            <p class="secondary">{direction === 'toDegree' ? degree.symbol : degree.numeral} — {degree.notes.join(' ')}</p>
+            <p class="big accent">{direction === 'toDegree' ? degree.numeral : sym(degree.symbol)}</p>
+            <p class="secondary">{direction === 'toDegree' ? sym(degree.symbol) : degree.numeral} — {degree.notes.join(' ')}</p>
             <p class="time">{(elapsedMs / 1000).toFixed(2)}s</p>
             <p class="hint">tap for the next one</p>
           </div>

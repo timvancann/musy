@@ -1,4 +1,13 @@
 <script lang="ts">
+  import { getJazzSymbols, setJazzSymbols } from '../prefs';
+
+  let jazz = $state(getJazzSymbols());
+
+  function toggleJazz() {
+    jazz = !jazz;
+    setJazzSymbols(jazz);
+  }
+
   const QUALITIES: { name: string; formula: string }[] = [
     { name: 'Major triad', formula: '1 3 5' },
     { name: 'Minor triad', formula: '1 b3 5' },
@@ -14,6 +23,11 @@
 
 <div class="screen">
   <h1>Settings</h1>
+  <section>
+    <button class="row" onclick={toggleJazz}>
+      <span>Chord symbols</span><span class="dim">{jazz ? 'jazz (∆ ø ° -)' : 'letters (maj7, m7b5)'}</span>
+    </button>
+  </section>
   <h2 class="section-title">Reference — chord formulas</h2>
   <section>
     {#each QUALITIES as q}
@@ -31,9 +45,10 @@
   section { display: grid; gap: 1px; background: var(--line); border-radius: var(--radius); overflow: hidden; }
   .row {
     display: flex; justify-content: space-between; align-items: center;
-    background: var(--panel); color: var(--text);
-    font: 500 14px var(--font-ui); padding: 12px 14px;
+    background: var(--panel); color: var(--text); border: 0; width: 100%; text-align: left;
+    font: 500 14px var(--font-ui); padding: 12px 14px; min-height: 48px;
   }
+  button.row { cursor: pointer; }
   .formula { font: 600 14px var(--font-mono); color: var(--accent); }
   .about { font-size: 12px; margin-top: 20px; text-align: center; }
 </style>
